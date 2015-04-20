@@ -1,6 +1,6 @@
 name := "ReleaseThermometer"
 
-version := "1.0"
+version := "0.0.1"
 
 scalaVersion := "2.11.6"
 
@@ -15,7 +15,7 @@ libraryDependencies ++= Seq(
     "org.json4s" %% "json4s-jackson" % "3.2.11"
 )
 
-assemblyJarName := "thermometer"
+assemblyJarName := "thermometer-0.0.1.jar"
 
 assemblyMergeStrategy in assembly := {
     case PathList("META-INF", xs @ _*) => MergeStrategy.discard
