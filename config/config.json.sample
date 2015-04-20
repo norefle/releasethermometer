@@ -1,0 +1,25 @@
+{
+    "version": "0.0.1",
+    "username": "put_here_username",
+    "password": "put_here_password",
+    "cucumber": [
+        {
+            "url": "http://address.to:8080/jenkins/cucumber/master",
+            "jobs": [
+                { "group": "functional", "name": "functional-tests", "passRate": 75 },
+                { "group": "functional", "name": "functional-tests-2", "passRate": 75 },
+                { "group": "integration", "name": "functional-integration-test", "passRate": 95 }
+            ]
+        },
+        {
+            "url": "http://address.to:8080/jenkins/cucumber/release",
+            "jobs": [ { "name": "integration-tests", "passRate": 95 } ]
+        }
+    ],
+    "coverage": [
+        {
+            "url": "http://address.to/jenkins/coverage/master",
+            "jobs": [ { "name": "unit-tests", "passRate": 75, "file": "results.xml" } ]
+        }
+    ]
+}

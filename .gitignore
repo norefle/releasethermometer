@@ -1,3 +1,5 @@
+# Ignore patterns
+
 *.class
 *.log
 
@@ -12,6 +14,11 @@ src_managed/
 project/boot/
 project/plugins/project/
 
-# Scala-IDE specific
+# IDE specific
+.idea/
+*.sc
 .scala_dependencies
 .worksheet
+
+# Project specific
+config/config.json
