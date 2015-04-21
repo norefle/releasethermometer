@@ -60,7 +60,7 @@ object Thermometer {
 
             val realRate = (passed.toDouble / Math.max(total.toDouble, 1.0)) * 100.0
 
-            val color = if (rate < realRate) Console.GREEN else Console.RED
+            val color = if (rate <= realRate) Console.GREEN else Console.RED
             println(color +
                 adjust(key, 30) + adjust(f"$rate%%", 15) +
                 adjust(f"$realRate%.02f%% ($passed / $total)", 35) +
