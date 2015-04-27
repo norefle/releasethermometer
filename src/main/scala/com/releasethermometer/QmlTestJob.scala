@@ -2,12 +2,13 @@ package com.releasethermometer
 
 /**
  * JUnit compatible QML test job.
+ * @param timestamp Amount of milliseconds since the epoch.
  * @param success Success flag of the Jenkin's build (passed or failed).
  * @param build Jenkin's build number.
  * @param total Total amount of executed scenarios.
  * @param failed Amount of failed scenarios.
  */
-case class QmlTestJob(success: Boolean, build: Int, total: Int, failed: Int) extends JenkinsTestJob
+case class QmlTestJob(timestamp: Long, success: Boolean, build: Int, total: Int, failed: Int) extends JenkinsTestJob
 
 
 object QmlTestJob {
@@ -15,6 +16,6 @@ object QmlTestJob {
     val resultPattern = """<testsuite errors="\d+" failures="(\d+)" tests="(\d+)" name=".+">""".r
 
     def combine(left: QmlTestJob, right: QmlTestJob): QmlTestJob = QmlTestJob(
-        left.success && right.success, left.build, left.total + right.total, left.failed + right.failed
+        left.timestamp, left.success && right.success, left.build, left.total + right.total, left.failed + right.failed
     )
 }

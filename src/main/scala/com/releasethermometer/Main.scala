@@ -41,27 +41,28 @@ object Thermometer {
         println("")
 
         val output = results.map{
-            case (group, rate, CucumberTestJob(success, _, total, passed, failed, pending)) => (group, (rate, total - pending, passed))
-            case (group, rate, QmlTestJob(success, _, total, failed)) => (group, (rate, total, total - failed))
-            case (group, rate, CoverageTestJob(success, _, lines)) => (group, (rate, 100, lines.toInt))
-            case _ => ("unknown", (0, 1, 0))
+            case (group, rate, CucumberTestJob(timestamp, success, _, total, passed, failed, pending)) => (group, (timestamp, rate, total - pending, passed))
+            case (group, rate, QmlTestJob(timestamp, success, _, total, failed)) => (group, (timestamp, rate, total, total - failed))
+            case (group, rate, CoverageTestJob(timestamp, success, _, lines)) => (group, (timestamp, rate, 100, lines.toInt))
+            case _ => ("unknown", (0l, 0, 1, 0))
         }.toList
 
         println("")
-        println(adjust("name", 30) + adjust("expected %", 15) + adjust("actual % (passed / total)", 35))
-        println(adjust("", 80, "="))
+        println(adjust("date", 30) + adjust("name", 30) + adjust("expected %", 15) + adjust("actual % (passed / total)", 35))
+        println(adjust("", 110, "="))
 
         val grouped = output.groupBy(_._1).mapValues(_.map(_._2))
         grouped.foreach(entry => {
             val (key, value) = entry
-            val (rate, total, passed) = value.foldLeft((0, 0, 0))((left, right) =>
-                (if (left._1 > 0) left._1 else right._1, left._2 + right._2, left._3 + right._3)
+            val (timestamp, rate, total, passed) = value.foldLeft((0l, 0, 0, 0))((left, right) =>
+                (if (left._1 > 0l) left._1 else right._1, if (left._2 > 0) left._2 else right._2, left._3 + right._3, left._4 + right._4)
             )
 
             val realRate = (passed.toDouble / Math.max(total.toDouble, 1.0)) * 100.0
 
             val color = if (rate <= realRate) Console.GREEN else Console.RED
             println(color +
+                adjust(java.time.Instant.ofEpochMilli(timestamp).toString, 30) +
                 adjust(key, 30) + adjust(f"$rate%%", 15) +
                 adjust(f"$realRate%.02f%% ($passed / $total)", 35) +
                 Console.RESET

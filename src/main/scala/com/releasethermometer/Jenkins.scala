@@ -19,6 +19,7 @@ object Jenkins {
         val job = jenkins.getJob(config.name)
         val build = job.getLastCompletedBuild
         val info = build.details
+        val timestamp = info.getTimestamp
         val result = for {
             result <- CucumberTestJob.resultPattern.findAllMatchIn(info.getConsoleOutputText)
         } yield {
@@ -27,11 +28,11 @@ object Jenkins {
             val pending = getOrZero(result.group(3))
             val passed = getOrZero(result.group(4))
             CucumberTestJob(
-                isSuccessful(info.getResult), build.getNumber, total, passed, failed, pending
+                timestamp, isSuccessful(info.getResult), build.getNumber, total, passed, failed, pending
             )
         }
         result.foldLeft(CucumberTestJob(
-            isSuccessful(info.getResult), build.getNumber, 0, 0, 0, 0)
+            timestamp, isSuccessful(info.getResult), build.getNumber, 0, 0, 0, 0)
         )(
             CucumberTestJob.combineWithRerun
         )
@@ -45,6 +46,7 @@ object Jenkins {
         val info = build.details
         val buildNumber = build.getNumber
         val buildStatus = isSuccessful(info.getResult)
+        val timestamp = info.getTimestamp
         val results = for (artifact <- info.getArtifacts) yield {
             val string = try {
                 val file = info.downloadArtifact(artifact)
@@ -57,13 +59,13 @@ object Jenkins {
             string match {
                 case Some(origin) => origin match {
                     case QmlTestJob.resultPattern(fail, total) =>
-                        QmlTestJob(buildStatus, buildNumber, getOrZero(total), getOrZero(fail))
-                    case _ => QmlTestJob(buildStatus, buildNumber, 0, 0)
+                        QmlTestJob(timestamp, buildStatus, buildNumber, getOrZero(total), getOrZero(fail))
+                    case _ => QmlTestJob(timestamp, buildStatus, buildNumber, 0, 0)
                 }
-                case _ => QmlTestJob(buildStatus, buildNumber, 0, 0)
+                case _ => QmlTestJob(timestamp, buildStatus, buildNumber, 0, 0)
             }
         }
-        results.foldLeft(QmlTestJob(buildStatus, buildNumber, 0, 0))(QmlTestJob.combine)
+        results.foldLeft(QmlTestJob(timestamp, buildStatus, buildNumber, 0, 0))(QmlTestJob.combine)
     }
 
     /** Processes test coverage job (GCov compatible). */
@@ -76,6 +78,7 @@ object Jenkins {
                 val info = build.details
                 val buildNumber = build.getNumber
                 val buildStatus = isSuccessful (info.getResult)
+                val timestamp = info.getTimestamp
                 info.getArtifacts.find(_.getFileName == fileName) match {
                     case Some(artifact) => {
                         val string = try {
@@ -89,16 +92,16 @@ object Jenkins {
                         string match {
                             case Some(origin) => origin match {
                                 case CoverageTestJob.resultPattern(lineRate) =>
-                                    CoverageTestJob(buildStatus, buildNumber, getOrZeroDouble(lineRate) * 100.0)
-                                case _ => CoverageTestJob(buildStatus, buildNumber, 0.0)
+                                    CoverageTestJob(timestamp, buildStatus, buildNumber, getOrZeroDouble(lineRate) * 100.0)
+                                case _ => CoverageTestJob(timestamp, buildStatus, buildNumber, 0.0)
                             }
-                            case _ => CoverageTestJob(buildStatus, buildNumber, 0.0)
+                            case _ => CoverageTestJob(timestamp, buildStatus, buildNumber, 0.0)
                         }
                     }
-                    case _ => CoverageTestJob(buildStatus, buildNumber, 0.0)
+                    case _ => CoverageTestJob(timestamp, buildStatus, buildNumber, 0.0)
                 }
             }
-            case _ => CoverageTestJob(false, 0, 0.0)
+            case _ => CoverageTestJob(0, false, 0, 0.0)
         }
     }
 

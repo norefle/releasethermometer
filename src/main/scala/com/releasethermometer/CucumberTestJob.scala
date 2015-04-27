@@ -2,6 +2,7 @@ package com.releasethermometer
 
 /**
  * Cucumber test job.
+ * @param timestamp Amount of milliseconds since the epoch.
  * @param success Success flag of the Jenkin's build (passed or failed).
  * @param build Jenkin's build number.
  * @param total Total amount of executed scenarios.
@@ -9,7 +10,7 @@ package com.releasethermometer
  * @param failed Amount of failed scenarios.
  * @param pending Amount of pending scenarios.
  */
-case class CucumberTestJob(success: Boolean, build: Int, total: Int, passed: Int, failed: Int, pending: Int) extends JenkinsTestJob
+case class CucumberTestJob(timestamp: Long, success: Boolean, build: Int, total: Int, passed: Int, failed: Int, pending: Int) extends JenkinsTestJob
 
 object CucumberTestJob {
     /** Result pattern for cucumber test execution: XX scenarios (XX failed, XX pending, XX passed). */
@@ -28,6 +29,7 @@ object CucumberTestJob {
      */
     def combineWithRerun(original: CucumberTestJob, rerun: CucumberTestJob): CucumberTestJob = {
         CucumberTestJob(
+            original.timestamp,
             original.success,
             original.build,
             math.max(original.total, rerun.total),
